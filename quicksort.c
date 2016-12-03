@@ -5,7 +5,7 @@
 // Iterative Quicksort adapted from
 // http://alienryderflex.com/quicksort/ (public domain)
 
-#define ARRAY_SIZE 100000
+#define ARRAY_SIZE 10000
 #define MAX_LEVELS 300
 
 void process() {

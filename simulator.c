@@ -189,7 +189,8 @@ int main(int argc, char *argv[]) {
   int window_size = atoi(argv[2]);
 
   init(page_size, window_size);
+  printf("Running process...\n");
   process();
-
+  printf("Analysis complete!\n");
   return 0;
 }

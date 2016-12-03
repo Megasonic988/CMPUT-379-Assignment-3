@@ -2,7 +2,10 @@
 #include <stdio.h>
 #include "simulator.h"
 
-#define N 1000
+#define N 10000
+
+// Non-recursive HeapSort adapted from
+// http://www.codecodex.com/wiki/Heapsort
 
 void process() {
 
@@ -21,7 +24,7 @@ void process() {
     } else {      /* Second stage - Extracting elements in-place */
       n--;        /* Make the new heap smaller */
       if (n == 0)
-        return;        /* When the heap is empty, we are done */
+        break;        /* When the heap is empty, we are done */
       t = get(n);      /* Save last value (it will be overwritten) */
       put(n, get(0)); /* Save largest value at the end of arr */
     }
@@ -44,9 +47,7 @@ void process() {
       }
     }
     put(parent, t); /* We save t in the heap */
-    printf("%s\n", "done");
   }
-  printf("%s\n", "hereee");
 
   done();
 }
