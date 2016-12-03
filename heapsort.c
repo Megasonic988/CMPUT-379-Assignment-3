@@ -1,58 +1,44 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <time.h>
-
-#define ARRAY_SIZE 10000
-
-void bubbleDown(int numbers[], int index, int len) {
-  int leftChildIndex = 2 * index + 1;
-  int rightChildIndex = 2 * index + 2;
-
-  if (leftChildIndex >= len) {
-    return; // node at index is a leaf
-  }
-
-  int minIndex = index;
-
-  if (numbers[leftChildIndex] > numbers[index]) {
-    minIndex = leftChildIndex;
-  }
-  if ((rightChildIndex < len) &&
-      (numbers[rightChildIndex] > numbers[minIndex])) {
-    minIndex = rightChildIndex;
-  }
-
-  if (minIndex != index) {
-    int tmp = numbers[minIndex];
-    numbers[minIndex] = numbers[index];
-    numbers[index] = tmp;
-    bubbleDown(numbers, minIndex, len);
-  }
-}
-
-void makeHeap(int numbers[], int len) {
-  for (int i = len - 1; i >= 0; i--) {
-    bubbleDown(numbers, i, len);
-  }
-}
-
-void heapSort(int numbers[], int len) {
-  makeHeap(numbers, len);
-
-  for (int i = 0; i < len; i++) {
-    int tmp = numbers[0];
-    numbers[0] = numbers[len - 1 - i];
-    numbers[len - 1 - i] = tmp;
-    bubbleDown(numbers, 0, len - 1 - i);
-  }
-}
+#define N 100000
 
 void process() {
-  int i;
-  for (i = 0; i < ARRAY_SIZE; i++) {
-    put (i, lrand48 ());
+
+  int x;
+  for (x = 0; x < ARRAY_SIZE; x++) {
+    put (x, lrand48 ());
   }
 
-  heapSort(arr, ARRAY_SIZE);
+  unsigned int n = N, i = n / 2, parent, child;
+  int t;
 
+  for (;;) {      /* Loops until arr is sorted */
+    if (i > 0) {  /* First stage - Sorting the heap */
+      i--;        /* Save its index to i */
+      t = get(i); /* Save parent value to t */
+    } else {      /* Second stage - Extracting elements in-place */
+      n--;        /* Make the new heap smaller */
+      if (n == 0)
+        return;        /* When the heap is empty, we are done */
+      t = get(n);      /* Save last value (it will be overwritten) */
+      put(n, get(0)); /* Save largest value at the end of arr */
+    }
+
+    parent = i;        /* We will start pushing down t from parent */
+    child = i * 2 + 1; /* parent's left child */
+
+    /* Sift operation - pushing the value of t down the heap */
+    while (child < n) {
+      if (child + 1 < n && get(child + 1) > get(child)) {
+        child++; /* Choose the largest child */
+      }
+      if (get(child) > t) {       /* If any child is bigger than the parent */
+        put(parent, get(child)); /* Move the largest child up */
+        parent = child;           /* Move parent pointer to this child */
+        // child = parent*2-1; /* Find the next child */
+        child = parent * 2 + 1; /* the previous line is wrong*/
+      } else {
+        break; /* t's place is found */
+      }
+    }
+    put(parent,get(t)); /* We save t in the heap */
+  }
 }
