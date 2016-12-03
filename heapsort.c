@@ -1,9 +1,13 @@
-#define N 100000
+#include <stdlib.h>
+#include <stdio.h>
+#include "simulator.h"
+
+#define N 1000
 
 void process() {
 
   int x;
-  for (x = 0; x < ARRAY_SIZE; x++) {
+  for (x = 0; x < N; x++) {
     put (x, lrand48 ());
   }
 
@@ -39,6 +43,10 @@ void process() {
         break; /* t's place is found */
       }
     }
-    put(parent,get(t)); /* We save t in the heap */
+    put(parent, t); /* We save t in the heap */
+    printf("%s\n", "done");
   }
+  printf("%s\n", "hereee");
+
+  done();
 }

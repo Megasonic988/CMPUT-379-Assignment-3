@@ -75,9 +75,13 @@ void create_memory(int page_size)
   printf("Virtual memory successfully created!\n");
 }
 
+int hash(unsigned int address) {
+  return address % NUMBER_OF_PAGES;
+}
+
 int get_memory(unsigned int address)
 {
-  int page_index = address / PAGE_SIZE;
+  int page_index = hash(address);
   MemoryNode *node = search_MemoryNode(memory[page_index], address);
   if (node == NULL) {
     printf("Error: get_memory on invalid address\n");
@@ -89,7 +93,7 @@ int get_memory(unsigned int address)
 
 void put_memory(unsigned int address, int value)
 {
-  int page_index = address / PAGE_SIZE;
+  int page_index = hash(address);
   MemoryNode *node = search_MemoryNode(memory[page_index], address);
   if (node == NULL) {
     MemoryNode *new = new_MemoryNode(address, value);
