@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include "simulator.h"
 
-#define N 10000
+#define N 100000
 
 // Non-recursive HeapSort adapted from
 // http://www.codecodex.com/wiki/Heapsort

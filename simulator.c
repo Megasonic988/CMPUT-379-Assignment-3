@@ -15,14 +15,10 @@ int WINDOW_SIZE;
 int NUMBER_OF_PAGES;
 int NUMBER_OF_WINDOWS;
 int ACCESS_COUNT = 0;
-//int *working_set_array; //assume we know the number of pages right now.
 
-//count and array for each window
 int count;
 int *page_array;
-
-//array of counts
-int *working_set_array;
+int *working_set_history;
 
 typedef struct MemoryNode {
   unsigned int address;
@@ -70,8 +66,7 @@ int length_MemoryNode(MemoryNode *head)
 
 void create_memory(int page_size)
 {
-  int num_pages = (MAX_MEMORY_SIZE / page_size);
-  memory = (MemoryNode **)malloc(num_pages * sizeof(MemoryNode *));
+  memory = (MemoryNode **)malloc(NUMBER_OF_PAGES * sizeof(MemoryNode *));
   printf("Virtual memory successfully created!\n");
 }
 
@@ -81,8 +76,7 @@ int hash(unsigned int address) {
 
 int get_memory(unsigned int address)
 {
-  int page_index = hash(address);
-  MemoryNode *node = search_MemoryNode(memory[page_index], address);
+  MemoryNode *node = search_MemoryNode(memory[hash(address)], address);
   if (node == NULL) {
     printf("Error: get_memory on invalid address\n");
     exit(1);
@@ -109,36 +103,26 @@ void init(int psize, int winsize) {
   WINDOW_SIZE = winsize;
   NUMBER_OF_PAGES = MAX_MEMORY_SIZE / PAGE_SIZE;
   NUMBER_OF_WINDOWS = MAX_MEMORY_SIZE / winsize;
+
   page_array = (int*)malloc(sizeof(int) * NUMBER_OF_PAGES);
-  working_set_array = (int*)(malloc(sizeof(int) * NUMBER_OF_WINDOWS));
+  working_set_history = (int*)(malloc(sizeof(int) * NUMBER_OF_WINDOWS));
 
   create_memory(psize);
 }
 
-void working_set(unsigned int address){
-
-  // working_set_array.bucket_array = malloc(sizeof(int) * NUMBER_OF_PAGES);
-
-
-  int current_working_set = 0;
+void working_set(unsigned int address) {
   int current_page = address / PAGE_SIZE;
   int current_window = ACCESS_COUNT / WINDOW_SIZE;
 
-  if(page_array[current_page] == 0){
+  if (page_array[current_page] == 0){
     page_array[current_page] = 1;
-    current_working_set = 1;
+    count += 1;
   }
-
-  else{
-    current_working_set = 0;
-  }
-
-  count += current_working_set;
 
   //for the last access in the window size update the count and clear the memory
   if(ACCESS_COUNT % WINDOW_SIZE == (WINDOW_SIZE - 1)){
-    working_set_array[current_window] = count;
-    memset(page_array, 0, NUMBER_OF_PAGES*sizeof(int));
+    working_set_history[current_window] = count;
+    memset(page_array, 0, NUMBER_OF_PAGES * sizeof(int));
     count = 0;
   }
   ACCESS_COUNT++;
@@ -146,7 +130,6 @@ void working_set(unsigned int address){
 
 
 void put(unsigned int address, int value) {
-  //printf("address: %i\n",address);
   working_set(address);
   put_memory(address, value);
 }
@@ -164,18 +147,31 @@ void done(){
   float windows_used = ACCESS_COUNT / WINDOW_SIZE;
 
   int i;
-  //printf("NUMBER_OF_WINDOWS: %i\n",NUMBER_OF_WINDOWS);
-  for(i = 0; i < windows_used; i++){
+
+  for (i = 0; i < windows_used; i++){
     min = i * WINDOW_SIZE;
     max = min + WINDOW_SIZE - 1;
-    printf("Window %i (Memory Accesses %i to %i) Working Set Size: %i\n", i, min, max, working_set_array[i]);
-    //printf("hi\n");
-    total_count += working_set_array[i];
+    printf("Window %i (Memory Accesses %i to %i) Working Set Size: %i\n", i, min, max, working_set_history[i]);
+    total_count += working_set_history[i];
   }
 
-  float avg = total_count/windows_used;
+  float avg = total_count / windows_used;
 
   printf("Average working set size taken over all memory references: %f\n", avg);
+
+  // Free the memory
+  for (i = 0; i < NUMBER_OF_PAGES; i++) {
+    MemoryNode *node = memory[i];
+    while (node != NULL) {
+      MemoryNode *curr = node;
+      node = node->next;
+      free(curr);
+    }
+  }
+  free(memory);
+  free(page_array);
+  free(working_set_history);
+  printf("Analysis complete!\n");
 }
 
 int main(int argc, char *argv[]) {
@@ -191,6 +187,5 @@ int main(int argc, char *argv[]) {
   init(page_size, window_size);
   printf("Running process...\n");
   process();
-  printf("Analysis complete!\n");
   return 0;
 }

@@ -6,3 +6,7 @@ heapsort:
 
 bubble:
 	gcc -o bubble bubble.c simulator.c
+
+clean:
+	rm -f quicksort
+	rm -f heapsort
